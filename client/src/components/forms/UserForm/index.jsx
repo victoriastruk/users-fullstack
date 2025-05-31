@@ -16,14 +16,24 @@ function UserForm({ createUser }) {
     passwHash: "",
     birthday: "",
     gender: GENDERS[0],
-    // userPhoto: '',
+    userPhoto: "",
   };
 
   const handleSubmit = (values, formikBag) => {
-    if (!values.birthday) {
-      delete values.birthday;
+    const formData = new FormData();
+    formData.append("firstName", values.firstName);
+    formData.append("lastName", values.lastName);
+    formData.append("email", values.email);
+    formData.append("passwHash", values.passwHash);
+    if (values.birthday) {
+      formData.append("birthday", values.birthday);
     }
-    createUser(values);
+    formData.append("gender", values.gender);
+
+    formData.append("userPhoto", values.userPhoto);
+    console.log("userPhoto in values:", values.userPhoto);
+
+    createUser(formData);
     formikBag.resetForm();
   };
 
@@ -85,9 +95,13 @@ function UserForm({ createUser }) {
           ))}
           <label>
             <span>Photo:</span>
-            <input type="file" name="userPhoto" onChange={e=>{
-              formikProps.setFieldValue('userPhoto', e.target.files[0])
-            }}/>
+            <input
+              type="file"
+              name="userPhoto"
+              onChange={(e) => {
+                formikProps.setFieldValue("userPhoto", e.target.files[0]);
+              }}
+            />
           </label>
           <button type="submit">Save</button>
         </Form>
