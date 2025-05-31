@@ -9,6 +9,21 @@ const initialState = {
   error: null,
 };
 
+export const createUserThunk = createAsyncThunk(
+  `${USERS_SLICE_NAME}/create`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      const {
+        data: { data },
+      } = await API.createUser(payload);
+      return data;
+    } catch (err) {
+      console.log("err:>>", err);
+      return rejectWithValue({ errors: err.response.data });
+    }
+  }
+);
+
 export const getUsersThunk = createAsyncThunk(
   `${USERS_SLICE_NAME}/get`,
   async (payload, { rejectWithValue }) => {
@@ -40,6 +55,19 @@ const usersSlice = createSlice({
   name: USERS_SLICE_NAME,
   initialState,
   extraReducers: (builder) => {
+    //create
+    builder.addCase(createUserThunk.pending, (state) => {
+      state.isFetching = true;
+      state.error = null;
+    });
+    builder.addCase(createUserThunk.fulfilled, (state, { payload }) => {
+      state.users.push(payload);
+      state.isFetching = false;
+    });
+    builder.addCase(createUserThunk.rejected, (state, { payload }) => {
+      state.error = payload;
+      state.isFetching = false;
+    });
     //get
     builder.addCase(getUsersThunk.pending, (state) => {
       state.isFetching = true;
